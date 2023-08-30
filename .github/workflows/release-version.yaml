@@ -35,5 +35,4 @@ jobs:
           files: |
             ${{ github.workspace }}/binary-darwin-amd64
             ${{ github.workspace }}/binary-darwin-arm64
-          title: Release ${{ github.ref }}
-          draft: true
+          title: Release ${{ github.ref_name }}
