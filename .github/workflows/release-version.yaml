@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        binary-os: [darwin-amd, darwin-arm]
+        binary-os: [darwin-amd64, darwin-arm64]
     steps:
       - name: Clone the repository.
         uses: actions/checkout@v3
@@ -33,7 +33,7 @@ jobs:
           automatic_release_tag: latest
           prerelease: false
           files: |
-            ${{ github.workspace }}/binary-darwin-amd
-            ${{ github.workspace }}/binary-darwin-arm
+            ${{ github.workspace }}/binary-darwin-amd64
+            ${{ github.workspace }}/binary-darwin-arm64
           title: Release ${{ github.ref }}
           draft: true
