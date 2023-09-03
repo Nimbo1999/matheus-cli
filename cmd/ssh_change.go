@@ -19,6 +19,9 @@ func NewChangeCmd(service services.Service) *cobra.Command {
 				return err
 			}
 			p, err := entities.GetProfile(profile)
+			if err != nil {
+				return err
+			}
 			if err = service.Update(*p); err != nil {
 				return err
 			}
