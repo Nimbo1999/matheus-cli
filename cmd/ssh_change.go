@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/fatih/color"
+	"github.com/nimbo1999/environment-setup/internal/entities"
 	"github.com/nimbo1999/environment-setup/internal/services"
 	"github.com/spf13/cobra"
 )
@@ -17,7 +18,8 @@ func NewChangeCmd(service services.Service) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			if err = service.Change(profile); err != nil {
+			p, err := entities.GetProfile(profile)
+			if err = service.Update(*p); err != nil {
 				return err
 			}
 			color.Green("Profile updated successfully!")

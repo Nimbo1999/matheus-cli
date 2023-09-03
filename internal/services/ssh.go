@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/nimbo1999/environment-setup/internal/entities"
+	appErrors "github.com/nimbo1999/environment-setup/pkg/errors"
 	"github.com/nimbo1999/environment-setup/pkg/path"
 	cp "github.com/otiai10/copy"
 )
@@ -15,7 +17,8 @@ type SSHService struct {
 }
 
 var (
-	ErrProfileDoesNotExists = errors.New("provided profile does not exists")
+	ErrProfileDoesNotHaveSSHConfiguration = errors.New("this profile does not have a ssh configuration")
+	ErrProfileDoesNotExists               = errors.New("provided profile does not exists")
 )
 
 func NewSSHService(folderName string) *SSHService {
@@ -34,22 +37,30 @@ func (service *SSHService) List() ([]fs.DirEntry, error) {
 	return dir.ReadDir(0)
 }
 
-func (service *SSHService) Change(profile string) error {
-	profilePath, err := service.GetProfilePath(profile)
-	if err != nil {
-		return err
-	}
-
-	// Removes the .ssh folder under the Home directory, that indicates the current
-	// active profile.
-	if err := service.Remove(); err != nil {
-		return err
-	}
-
-	return service.Use(profilePath)
+func (service *SSHService) Create(entityName string) error {
+	return appErrors.ErrMethodNotImplementedYet
 }
 
-func (service *SSHService) Remove() error {
+func (service *SSHService) Update(profile entities.Profile) error {
+	configuration := profile.GetConfiguration(entities.SshConfigKey)
+	if configuration == nil {
+		return ErrProfileDoesNotHaveSSHConfiguration
+	}
+
+	if err := service.ClearActiveSSH(); err != nil {
+		return err
+	}
+
+	return service.Use(configuration.FilePath)
+}
+
+func (service *SSHService) Remove(profile entities.Profile) error {
+	return appErrors.ErrMethodNotImplementedYet
+}
+
+// Removes the .ssh folder under the Home directory, that indicates the current
+// active profile.
+func (service *SSHService) ClearActiveSSH() error {
 	sshPath, err := service.GetUserSSHPath()
 	if err != nil {
 		return err
@@ -58,7 +69,7 @@ func (service *SSHService) Remove() error {
 }
 
 func (service *SSHService) GetStoragedSSHPath() string {
-	return filepath.Join(path.GetPath(path.ConfigPath), service.FolderName)
+	return filepath.Join(path.GetApplicationPaths(path.ConfigPath), service.FolderName)
 }
 
 func (service *SSHService) GetProfilePath(profile string) (string, error) {
@@ -79,13 +90,13 @@ func (service *SSHService) GetUserSSHPath() (string, error) {
 	return sshPath, nil
 }
 
-func (service *SSHService) Use(profilePath string) error {
+func (service *SSHService) Use(sshConfigPath string) error {
 	sshPath, err := service.GetUserSSHPath()
 	if err != nil {
 		return err
 	}
 
-	if err = cp.Copy(profilePath, sshPath); err != nil {
+	if err = cp.Copy(sshConfigPath, sshPath); err != nil {
 		return err
 	}
 	return nil

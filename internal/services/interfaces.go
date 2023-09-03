@@ -1,9 +1,14 @@
 package services
 
-import "io/fs"
+import (
+	"io/fs"
+
+	"github.com/nimbo1999/environment-setup/internal/entities"
+)
 
 type Service interface {
-	Change(profile string) error
+	Create(entityName string) error
+	Update(profile entities.Profile) error
 	List() ([]fs.DirEntry, error)
-	Remove() error
+	Remove(profile entities.Profile) error
 }

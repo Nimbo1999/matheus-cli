@@ -1,7 +1,6 @@
 package path
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -13,6 +12,7 @@ const (
 	CachePath       Folder = "cache"
 	HomePath        Folder = "home"
 	ApplicationName Folder = "Matheus"
+	ProfilesPath    Folder = "profiles"
 )
 
 var FolderMap map[Folder]func() (string, error) = map[Folder]func() (string, error){
@@ -21,18 +21,22 @@ var FolderMap map[Folder]func() (string, error) = map[Folder]func() (string, err
 	HomePath:   os.UserHomeDir,
 }
 
-func GetPath(folder Folder) string {
+func GetApplicationPaths(folder Folder) string {
 	function, hasProperty := FolderMap[folder]
 	if !hasProperty {
-		panic(fmt.Errorf("there is no folder available for %s", folder))
+		return ""
 	}
 	dir, err := function()
 	if err != nil {
-		panic(err)
+		return ""
 	}
 	return CreateDirectory(dir)
 }
 
 func CreateDirectory(dir string) string {
 	return filepath.Join(dir, ApplicationName)
+}
+
+func GetProfilesPath() string {
+	return filepath.Join(GetApplicationPaths(ConfigPath), ProfilesPath)
 }
